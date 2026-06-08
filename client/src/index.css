@@ -1,14 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================
+   TDC MATCHMAKER — DESIGN SYSTEM
+   Romantic · Trustworthy · Premium
+   ============================================ */
+
+:root {
+  /* Primary Palette — Warm Romantic Reds */
+  --clr-primary: #A4243B;       /* Deep romantic red */
+  --clr-primary-dark: #7B1A2E;  /* Darker shade for hover */
+  --clr-primary-light: #D4586A; /* Lighter for accents */
+  --clr-primary-muted: #F2E0E3; /* Very soft blush for backgrounds */
+  
+  /* Warm Neutrals — Trust & Sophistication */
+  --clr-bg: #FDFBF9;            /* Warm off-white */
+  --clr-surface: #FFFFFF;       /* Card surfaces */
+  --clr-surface-warm: #FAF5F0;  /* Warm tinted surface */
+  --clr-border: #EDE4DD;        /* Warm subtle borders */
+  --clr-border-light: #F3EDE8;  /* Even lighter borders */
+  
+  /* Text Hierarchy */
+  --clr-text-primary: #2C1810;  /* Rich dark brown - main text */
+  --clr-text-secondary: #6B5B54; /* Warm gray - secondary */
+  --clr-text-muted: #9A8A82;    /* Muted warm gray */
+  --clr-text-on-primary: #FFF8F5;
+  
+  /* Status Colors */
+  --clr-active: #2D7D5F;
+  --clr-active-bg: #E8F5EE;
+  --clr-matched: #3B6FB5;
+  --clr-matched-bg: #E5EFF9;
+  --clr-hold: #B5873B;
+  --clr-hold-bg: #FDF3E5;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(44, 24, 16, 0.04), 0 1px 3px rgba(44, 24, 16, 0.06);
+  --shadow-md: 0 2px 4px rgba(44, 24, 16, 0.04), 0 4px 12px rgba(44, 24, 16, 0.08);
+  --shadow-lg: 0 4px 8px rgba(44, 24, 16, 0.04), 0 8px 24px rgba(44, 24, 16, 0.1);
+  --shadow-card-hover: 0 8px 16px rgba(44, 24, 16, 0.06), 0 16px 40px rgba(164, 36, 59, 0.08);
+  
+  /* Transitions */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #fcfcfc;
-  color: #374151; /* gray-700 */
+  background-color: var(--clr-bg);
+  color: var(--clr-text-primary);
+  line-height: 1.5;
+}
+
+/* Headings use tighter tracking for visual hierarchy */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* Custom scrollbar — subtle and warm */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { 
+  background: var(--clr-border); 
+  border-radius: 99px; 
+}
+::-webkit-scrollbar-thumb:hover { 
+  background: var(--clr-text-muted); 
+}
+
+/* Utility: smooth fade-in for page loads */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s var(--ease-out) both;
+}
+
+/* Stagger children animations */
+.stagger-children > * {
+  animation: fadeIn 0.35s var(--ease-out) both;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0.03s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.06s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.09s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.12s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.15s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.18s; }
+.stagger-children > *:nth-child(7) { animation-delay: 0.21s; }
+.stagger-children > *:nth-child(8) { animation-delay: 0.24s; }
+.stagger-children > *:nth-child(9) { animation-delay: 0.27s; }
+.stagger-children > *:nth-child(10) { animation-delay: 0.3s; }
+
+/* Focus styles — warm, not the default blue */
+input:focus, button:focus-visible {
+  outline: 2px solid var(--clr-primary);
+  outline-offset: 2px;
+}
+
+/* Selection color */
+::selection {
+  background: var(--clr-primary-muted);
+  color: var(--clr-primary-dark);
 }
