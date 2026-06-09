@@ -10,6 +10,7 @@ const Dashboard = () => {
   const [statusFilter, setStatusFilter] = useState('All');
   const [clients, setClients] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Authentication Guard
   useEffect(() => {
@@ -134,9 +135,19 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen flex" style={{ backgroundColor: '#FDFBF9' }}>
       
+      {/* Sidebar Mobile Backdrop */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 z-20 md:hidden animate-fade-in"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* ===== SIDEBAR ===== */}
       <aside 
-        className="w-[240px] fixed left-0 top-0 bottom-0 flex flex-col z-20"
+        className={`w-[240px] fixed left-0 top-0 bottom-0 flex flex-col z-30 transition-transform duration-300 md:translate-x-0 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
         style={{ 
           backgroundColor: '#4A1525',
         }}
@@ -190,7 +201,10 @@ const Dashboard = () => {
         {/* Navigation */}
         <nav className="px-3 py-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => {
+              navigate('/dashboard');
+              setSidebarOpen(false);
+            }}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-150"
             style={{ 
               backgroundColor: 'transparent',
@@ -215,7 +229,10 @@ const Dashboard = () => {
               return (
                 <button
                   key={tab.key}
-                  onClick={() => setStatusFilter(tab.key)}
+                  onClick={() => {
+                    setStatusFilter(tab.key);
+                    setSidebarOpen(false);
+                  }}
                   className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-150"
                   style={{
                     backgroundColor: isActive ? 'rgba(255,255,255,0.06)' : 'transparent',
@@ -291,25 +308,37 @@ const Dashboard = () => {
       </aside>
 
       {/* ===== MAIN CONTENT ===== */}
-      <main className="flex-1 ml-[240px]">
+      <main className="flex-1 ml-0 md:ml-[240px] transition-all duration-300">
         
         {/* Top Header Bar */}
         <header 
-          className="sticky top-0 z-10 px-8 h-[81px] flex items-center justify-between"
+          className="sticky top-0 z-10 px-4 sm:px-8 h-[81px] flex items-center justify-between gap-4"
           style={{ 
             backgroundColor: 'rgba(253, 251, 249, 0.85)',
             backdropFilter: 'blur(12px)',
             borderBottom: '1px solid #EDE4DD',
           }}
         >
-          <div>
-            <p className="text-sm" style={{ color: '#9A8A82' }}>
-              {getGreeting()}, <span className="font-semibold" style={{ color: '#4A3830' }}>{matchmaker.name?.split(' ')[0]}</span>
-            </p>
+          <div className="flex items-center gap-3">
+            {/* Hamburger Menu Toggle */}
+            <button 
+              onClick={() => setSidebarOpen(true)}
+              className="p-2 -ml-2 rounded-lg text-[#9A8A82] hover:bg-[#FAF5F0] md:hidden"
+              aria-label="Open navigation menu"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            </button>
+            <div className="hidden sm:block">
+              <p className="text-sm" style={{ color: '#9A8A82' }}>
+                {getGreeting()}, <span className="font-semibold" style={{ color: '#4A3830' }}>{matchmaker.name?.split(' ')[0]}</span>
+              </p>
+            </div>
           </div>
 
           {/* Search */}
-          <div className="relative w-80">
+          <div className="relative flex-1 max-w-[280px] sm:max-w-xs md:w-80">
             <svg 
               className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4"
               fill="none" viewBox="0 0 24 24" stroke="#9A8A82" strokeWidth={2}
@@ -343,7 +372,7 @@ const Dashboard = () => {
         </header>
 
         {/* Content Area */}
-        <div className="px-8 py-6 max-w-6xl">
+        <div className="px-4 sm:px-8 py-6 max-w-6xl">
           
           {/* Page Title */}
           <div className="mb-6">
@@ -394,9 +423,9 @@ const Dashboard = () => {
                     }}
                   >
                     {/* Row 1: Identity + Status + Action */}
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center justify-between gap-4 mb-4">
                       {/* Left: Avatar + Name */}
-                      <div className="flex items-center gap-3.5">
+                      <div className="flex items-center gap-3.5 min-w-0">
                         {/* Color-coded avatar */}
                         <div 
                           className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
@@ -424,7 +453,7 @@ const Dashboard = () => {
                       </div>
 
                       {/* Right: View */}
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 flex-shrink-0">
 
                         <button
                           onClick={(e) => { e.stopPropagation(); navigate(`/customer/${client.id}`); }}
@@ -454,14 +483,14 @@ const Dashboard = () => {
                     <div className="h-px mb-4" style={{ backgroundColor: '#F3EDE8' }} />
 
                     {/* Row 2: Details + Journey Progress */}
-                    <div className="flex items-center justify-between gap-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6">
                       {/* Demographics — flat inline text */}
                       <p className="text-xs font-medium" style={{ color: '#9A8A82' }}>
                         {client.city} · {client.maritalStatus} · {client.income}
                       </p>
 
                       {/* Journey Progress */}
-                      <div className="w-48 flex-shrink-0">
+                      <div className="w-full sm:w-48 sm:flex-shrink-0">
                         <div className="mb-1.5">
                           <span className="text-[10px] font-semibold" style={{ color: '#9A8A82' }}>
                             {getStageLabel(client.journeyStage)}

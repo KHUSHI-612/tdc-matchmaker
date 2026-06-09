@@ -43,6 +43,7 @@ const CustomerDetail = () => {
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Auth check
   useEffect(() => {
@@ -388,9 +389,19 @@ matchmaker@tdc.com`;
   return (
     <div className="min-h-screen flex" style={{ backgroundColor: '#FDFBF9' }}>
       
+      {/* Sidebar Mobile Backdrop */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 z-20 md:hidden animate-fade-in"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* ===== SIDEBAR ===== */}
       <aside 
-        className="w-[240px] fixed left-0 top-0 bottom-0 flex flex-col z-20"
+        className={`w-[240px] fixed left-0 top-0 bottom-0 flex flex-col z-30 transition-transform duration-300 md:translate-x-0 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
         style={{ backgroundColor: '#4A1525' }}
       >
         {/* Header */}
@@ -407,7 +418,10 @@ matchmaker@tdc.com`;
         {/* Navigation - Return Home */}
         <nav className="px-3 py-6 flex-1">
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => {
+              navigate('/dashboard');
+              setSidebarOpen(false);
+            }}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
             style={{ color: 'rgba(255,255,255,0.65)' }}
             onMouseEnter={(e) => {
@@ -428,34 +442,46 @@ matchmaker@tdc.com`;
       </aside>
 
       {/* ===== MAIN CONTENT ===== */}
-      <main className="flex-1 ml-[240px]">
+      <main className="flex-1 ml-0 md:ml-[240px] transition-all duration-300">
         
         {/* Header Bar */}
         <header 
-          className="sticky top-0 z-10 px-8 h-[81px] flex items-center justify-between"
+          className="sticky top-0 z-10 px-4 md:px-8 h-[81px] flex items-center justify-between gap-4"
           style={{ 
             backgroundColor: 'rgba(253, 251, 249, 0.85)',
             backdropFilter: 'blur(12px)',
             borderBottom: '1px solid #EDE4DD',
           }}
         >
-          <button 
-            onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider transition-colors duration-150"
-            style={{ color: '#9A8A82' }}
-            onMouseEnter={(e) => e.target.style.color = '#A4243B'}
-            onMouseLeave={(e) => e.target.style.color = '#9A8A82'}
-          >
-            ← Back to My Clients
-          </button>
+          <div className="flex items-center gap-3">
+            {/* Hamburger Menu Toggle */}
+            <button 
+              onClick={() => setSidebarOpen(true)}
+              className="p-2 -ml-2 rounded-lg text-[#9A8A82] hover:bg-[#FAF5F0] md:hidden"
+              aria-label="Open navigation menu"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            </button>
+            <button 
+              onClick={() => navigate('/dashboard')}
+              className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider transition-colors duration-150"
+              style={{ color: '#9A8A82' }}
+              onMouseEnter={(e) => e.target.style.color = '#A4243B'}
+              onMouseLeave={(e) => e.target.style.color = '#9A8A82'}
+            >
+              ← Back to My Clients
+            </button>
+          </div>
           
-          <p className="text-xs" style={{ color: '#9A8A82' }}>
+          <p className="text-xs hidden sm:block" style={{ color: '#9A8A82' }}>
             Matchmaker: <span className="font-semibold text-[#4A3830]">{matchmaker?.name}</span>
           </p>
         </header>
 
         {/* Content Details Grid */}
-        <div className="px-8 py-6 max-w-6xl">
+        <div className="px-4 sm:px-8 py-6 max-w-6xl">
           
           {/* Main Title & Action Alert */}
           {saveSuccess && (
@@ -576,7 +602,7 @@ matchmaker@tdc.com`;
                             border: `1.5px solid ${isSelected ? '#A4243B' : isPassed ? '#E8C4CB' : '#EDE4DD'}`
                           }}
                         >
-                          Step {stageNum}
+                          <span className="hidden sm:inline">Step </span>{stageNum}
                         </button>
                       );
                     })}
@@ -874,7 +900,7 @@ matchmaker@tdc.com`;
                               ))}
 
                               {/* Suggest and Generate AI Pitch Buttons */}
-                              <div className="flex items-center justify-between gap-3 mt-4 pt-3 border-t border-[#EDE4DD]">
+                              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-3 mt-4 pt-3 border-t border-[#EDE4DD]">
                                 {/* Send Match Composer Trigger */}
                                 <button
                                   onClick={(e) => { e.stopPropagation(); handleOpenEmailComposer(match); }}
