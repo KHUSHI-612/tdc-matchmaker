@@ -20,6 +20,10 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Import and use match routes
+const matchRoutes = require('./routes/matchRoutes');
+app.use('/api', matchRoutes);
+
 // Start the Express server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
