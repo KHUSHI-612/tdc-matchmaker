@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import customersData from '../data/customers.json';
+import logo from '../logo.svg';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -29,9 +30,19 @@ const Dashboard = () => {
     }
   }, [navigate]);
 
-  // Load clients data
+  // Load clients data from backend dynamically to ensure session notes and stage updates sync, with a static fallback
   useEffect(() => {
-    setClients(customersData);
+    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+    fetch(`${API_URL}/customers`)
+      .then(res => {
+        if (!res.ok) throw new Error('API request failed');
+        return res.json();
+      })
+      .then(data => setClients(data))
+      .catch(err => {
+        console.warn('API unavailable, falling back to offline static data:', err.message);
+        setClients(customersData);
+      });
   }, []);
 
   const handleLogout = () => {
@@ -84,9 +95,7 @@ const Dashboard = () => {
             className="w-10 h-10 rounded-xl flex items-center justify-center animate-pulse"
             style={{ backgroundColor: '#F2E0E3' }}
           >
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#A4243B">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-            </svg>
+            <img src={logo} className="w-5 h-5 object-contain" alt="TDC Logo" />
           </div>
           <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#9A8A82' }}>
             Verifying session...
@@ -135,9 +144,7 @@ const Dashboard = () => {
             className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
             style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
           >
-            <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="#E8A0B0">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-            </svg>
+            <img src={logo} className="w-5 h-5 object-contain" alt="TDC Logo" />
           </div>
           <div>
             <div 

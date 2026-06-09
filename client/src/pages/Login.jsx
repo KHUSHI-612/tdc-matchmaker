@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import logo from '../logo.svg';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -74,9 +75,7 @@ const Login = () => {
               className="w-10 h-10 rounded-xl flex items-center justify-center"
               style={{ backgroundColor: 'rgba(164, 36, 59, 0.15)' }}
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#D4586A">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </svg>
+              <img src={logo} className="w-5 h-5 object-contain" alt="TDC Logo" />
             </div>
             <span 
               className="text-xl font-semibold tracking-wide"
@@ -173,9 +172,7 @@ const Login = () => {
               className="w-12 h-12 rounded-xl mx-auto flex items-center justify-center mb-4"
               style={{ backgroundColor: '#F2E0E3' }}
             >
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="#A4243B">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </svg>
+              <img src={logo} className="w-6 h-6 object-contain animate-pulse" alt="TDC Logo" />
             </div>
             <h1 className="text-2xl font-semibold" style={{ color: '#2C1810' }}>
               TDC Matchmaker

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { calculateCompatibility } from '../utils/matchingLogic';
+import logo from '../logo.svg';
 
 const CustomerDetail = () => {
   const { id } = useParams();
@@ -34,6 +35,15 @@ const CustomerDetail = () => {
   const [isGeneratingPitch, setIsGeneratingPitch] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Email Composer state
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [emailTo, setEmailTo] = useState('');
+  const [emailSubject, setEmailSubject] = useState('');
+  const [emailBody, setEmailBody] = useState('');
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [showToast, setShowToast] = useState(false);
+
   // Auth check
   useEffect(() => {
     const authData = localStorage.getItem('tdc_auth');
@@ -56,10 +66,11 @@ const CustomerDetail = () => {
   // Fetch Customer & All profiles
   useEffect(() => {
     const fetchData = async () => {
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
       setIsLoading(true);
       try {
         // Fetch customer profile
-        const custRes = await fetch(`http://localhost:5000/api/customers/${id}`);
+        const custRes = await fetch(`${API_URL}/customers/${id}`);
         if (!custRes.ok) throw new Error('Client profile not found');
         const custData = await custRes.json();
         setCustomer(custData);
@@ -67,7 +78,7 @@ const CustomerDetail = () => {
         setNotes(custData.notes || '');
 
         // Fetch all candidates
-        const allRes = await fetch('http://localhost:5000/api/customers');
+        const allRes = await fetch(`${API_URL}/customers`);
         if (!allRes.ok) throw new Error('Failed to load matchmaking pool');
         const allData = await allRes.json();
         setAllCustomers(allData);
@@ -85,10 +96,11 @@ const CustomerDetail = () => {
 
   // Handle saving notes and journey stage back to backend
   const handleSaveNotesAndStage = async () => {
+    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
     setIsSaving(true);
     setSaveSuccess(false);
     try {
-      const res = await fetch(`http://localhost:5000/api/customers/${id}`, {
+      const res = await fetch(`${API_URL}/customers/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -113,8 +125,9 @@ const CustomerDetail = () => {
     }
   };
 
-  // Trigger Backend Route for Claude AI Match Pitch
+  // Trigger Backend Route for Gemini AI Match Pitch
   const handleGeneratePitch = async (match) => {
+    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
     setActiveMatch(match.candidate);
     setIsModalOpen(true);
     setIsGeneratingPitch(true);
@@ -122,7 +135,7 @@ const CustomerDetail = () => {
     setCopied(false);
     
     try {
-      const res = await fetch('http://localhost:5000/api/score-match', {
+      const res = await fetch(`${API_URL}/score-match`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -150,17 +163,122 @@ const CustomerDetail = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const toggleSuggestMatch = (candId, e) => {
-    e.stopPropagation();
-    setSuggestedMatchIds(prev => {
-      const next = new Set(prev);
-      if (next.has(candId)) {
-        next.delete(candId);
-      } else {
-        next.add(candId);
+  // Open the Email Composer card, pre-loaded with candidate data and the AI Match pitch
+  const handleOpenEmailComposer = async (match) => {
+    setActiveMatch(match.candidate);
+    setIsEmailModalOpen(true);
+    setIsGeneratingPitch(true);
+    setCopied(false);
+    
+    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+    
+    // Default mail fields
+    const mockTo = `${customer.firstName}'s parents <${customer.firstName.toLowerCase()}.family@example.com>`;
+    const mockSubject = `TDC Matrimonial Suggestion: connection profile for ${customer.firstName}`;
+    
+    setEmailTo(mockTo);
+    setEmailSubject(mockSubject);
+    setEmailBody(`Crafting personalized AI email draft, please wait...`);
+
+    try {
+      const res = await fetch(`${API_URL}/score-match`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customer,
+          candidate: match.candidate,
+          score: match.score,
+        }),
+      });
+
+      if (!res.ok) throw new Error('Server returned an error generating pitch');
+      const data = await res.json();
+      
+      const draftBody = `Dear Mr. & Mrs. ${customer.lastName},
+
+Hope you are doing well.
+
+I am writing to share a highly compatible matrimonial profile for ${customer.firstName} that I believe aligns beautifully with his/her lifestyle and expectations.
+
+Suggested Match details:
+- Name: ${match.candidate.firstName} ${match.candidate.lastName}
+- Age/Height: ${match.candidate.age} yrs · ${match.candidate.height}
+- Location: ${match.candidate.city}
+- Education: ${match.candidate.degree} (${match.candidate.ugCollege})
+- Profession: ${match.candidate.designation} at ${match.candidate.company} (Income: ${match.candidate.income})
+- Diet/Lifestyle: ${match.candidate.diet} diet · ${match.candidate.drinking === 'Never' && match.candidate.smoking === 'Never' ? 'Non-drinker / Non-smoker' : 'Social lifestyle'}
+
+---
+COMPATIBILITY ANALYSIS & MATCHMAKER PITCH:
+${data.pitch}
+---
+
+Please let me know if you would like to proceed with sharing biodatas or coordinating a virtual introduction.
+
+Warm regards,
+Priya Sharma
+Senior Matchmaker, TDC (The Divine Connection)
+matchmaker@tdc.com`;
+
+      setEmailBody(draftBody);
+    } catch (err) {
+      const fallbackBody = `Dear Mr. & Mrs. ${customer.lastName},
+
+Hope you are doing well.
+
+I am writing to share a highly compatible matrimonial profile for ${customer.firstName} that I believe aligns beautifully with his/her lifestyle and expectations.
+
+Suggested Match details:
+- Name: ${match.candidate.firstName} ${match.candidate.lastName}
+- Age/Height: ${match.candidate.age} yrs · ${match.candidate.height}
+- Location: ${match.candidate.city}
+- Education: ${match.candidate.degree} (${match.candidate.ugCollege})
+- Profession: ${match.candidate.designation} at ${match.candidate.company} (Income: ${match.candidate.income})
+- Diet/Lifestyle: ${match.candidate.diet} diet · ${match.candidate.drinking === 'Never' && match.candidate.smoking === 'Never' ? 'Non-drinker / Non-smoker' : 'Social lifestyle'}
+
+---
+COMPATIBILITY ANALYSIS:
+- Compatibility score: ${match.score}%
+- Diet: Compatible dietary preferences (${customer.diet} vs ${match.candidate.diet})
+- Gotra Check: Compatible Gotra spacing (${customer.gotra} vs ${match.candidate.gotra})
+---
+
+Please let me know if you would like to proceed.
+
+Warm regards,
+Priya Sharma
+Senior Matchmaker, TDC
+matchmaker@tdc.com`;
+
+      setEmailBody(fallbackBody);
+    } finally {
+      setIsGeneratingPitch(false);
+    }
+  };
+
+  // Mock sending email flow with flying envelope animation
+  const handleSendEmail = () => {
+    setIsSendingEmail(true);
+    setTimeout(() => {
+      setIsSendingEmail(false);
+      setIsEmailModalOpen(false);
+      
+      // Persist in suggested tracker
+      if (activeMatch) {
+        setSuggestedMatchIds(prev => {
+          const next = new Set(prev);
+          next.add(activeMatch.id);
+          return next;
+        });
       }
-      return next;
-    });
+      
+      // Trigger success toast
+      setToastMessage(`Match suggestion email successfully sent to ${customer.firstName}'s family!`);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 4000);
+    }, 1500);
   };
 
   // Generate opposite gender active matches list
@@ -278,9 +396,7 @@ const CustomerDetail = () => {
         {/* Header */}
         <div className="px-6 py-6 flex items-center gap-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
           <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
-            <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="#E8A0B0">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-            </svg>
+            <img src={logo} className="w-5 h-5 object-contain" alt="TDC Logo" />
           </div>
           <div>
             <div className="text-base font-semibold" style={{ color: '#FFFFFF' }}>TDC Portal</div>
@@ -757,40 +873,43 @@ const CustomerDetail = () => {
                                   </div>
                                 </div>
                               ))}
-                            </div>
 
-                            {/* Suggest and Generate AI Pitch Buttons */}
-                            <div className="flex items-center justify-between gap-3 mt-4 pt-3 border-t border-[#EDE4DD]">
-                              {/* Suggest Toggle Button */}
-                              <button
-                                onClick={(e) => toggleSuggestMatch(cand.id, e)}
-                                className="px-3.5 py-1.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-150"
-                                style={{
-                                  backgroundColor: isSuggested ? '#E8F5EE' : 'transparent',
-                                  color: isSuggested ? '#2D7D5F' : '#6B5B54',
-                                  border: `1px solid ${isSuggested ? '#C2E5D3' : '#EDE4DD'}`
-                                }}
-                              >
-                                {isSuggested ? '✓ Suggested' : 'Suggest Match'}
-                              </button>
+                              {/* Suggest and Generate AI Pitch Buttons */}
+                              <div className="flex items-center justify-between gap-3 mt-4 pt-3 border-t border-[#EDE4DD]">
+                                {/* Send Match Composer Trigger */}
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleOpenEmailComposer(match); }}
+                                  className="px-3.5 py-1.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-150 flex items-center gap-1.5"
+                                  style={{
+                                    backgroundColor: isSuggested ? '#E8F5EE' : 'transparent',
+                                    color: isSuggested ? '#2D7D5F' : '#6B5B54',
+                                    border: `1px solid ${isSuggested ? '#C2E5D3' : '#EDE4DD'}`
+                                  }}
+                                >
+                                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                  </svg>
+                                  {isSuggested ? '✓ Profile Sent' : 'Send Match'}
+                                </button>
 
-                              {/* AI Pitch Trigger Button */}
-                              <button
-                                onClick={() => handleGeneratePitch(match)}
-                                className="px-3.5 py-1.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-150 flex items-center gap-1.5"
-                                style={{
-                                  backgroundColor: '#A4243B',
-                                  color: '#FFFFFF',
-                                  boxShadow: '0 2px 4px rgba(164, 36, 59, 0.15)'
-                                }}
-                                onMouseEnter={(e) => e.target.style.backgroundColor = '#7B1A2E'}
-                                onMouseLeave={(e) => e.target.style.backgroundColor = '#A4243B'}
-                              >
-                                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 21l8.982-11.761a2.25 2.25 0 00-1.802-3.626h-4.32a.75.75 0 01-.649-1.124L12.7 5.25H18" />
-                                </svg>
-                                Generate AI Pitch
-                              </button>
+                                {/* AI Pitch Trigger Button */}
+                                <button
+                                  onClick={() => handleGeneratePitch(match)}
+                                  className="px-3.5 py-1.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-150 flex items-center gap-1.5"
+                                  style={{
+                                    backgroundColor: '#A4243B',
+                                    color: '#FFFFFF',
+                                    boxShadow: '0 2px 4px rgba(164, 36, 59, 0.15)'
+                                  }}
+                                  onMouseEnter={(e) => e.target.style.backgroundColor = '#7B1A2E'}
+                                  onMouseLeave={(e) => e.target.style.backgroundColor = '#A4243B'}
+                                >
+                                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 21l8.982-11.761a2.25 2.25 0 00-1.802-3.626h-4.32a.75.75 0 01-.649-1.124L12.7 5.25H18" />
+                                  </svg>
+                                  Generate AI Pitch
+                                </button>
+                              </div>
                             </div>
                           </div>
                         )}
@@ -825,7 +944,7 @@ const CustomerDetail = () => {
               <div className="px-6 py-4 border-b border-[#EDE4DD] flex items-center justify-between bg-[#FAF5F0]">
                 <div>
                   <h3 className="text-base font-bold text-[#2C1810] font-display">
-                    Claude AI Match Pitch
+                    Gemini AI Match Pitch
                   </h3>
                   <p className="text-[11px] text-[#9A8A82] font-body mt-0.5">
                     Matchmaker Priya Sharma \'s pitch guidelines for {customer?.firstName} & {activeMatch?.firstName}
@@ -849,7 +968,7 @@ const CustomerDetail = () => {
                   <div className="py-16 text-center space-y-4">
                     <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#A4243B] mx-auto" />
                     <p className="text-xs font-semibold text-[#9A8A82] font-body">
-                      Claude is evaluating compatibility backgrounds & writing matchmaking pitch...
+                      Gemini is evaluating compatibility backgrounds & writing matchmaking pitch...
                     </p>
                   </div>
                 ) : (
@@ -892,6 +1011,184 @@ const CustomerDetail = () => {
                 </button>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ===== EMAIL COMPOSE CONSOLE GLASSMORPHIC MODAL ===== */}
+        {isEmailModalOpen && (
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md animate-fade-in"
+            style={{ backgroundColor: 'rgba(44, 24, 16, 0.35)' }}
+          >
+            <div 
+              className="bg-white border border-[#EDE4DD] rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="px-6 py-4 border-b border-[#EDE4DD] flex items-center justify-between bg-[#FAF5F0]">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-[#F2E0E3] flex items-center justify-center">
+                    <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="#A4243B" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-[#2C1810] font-display">
+                      Send Matrimonial Suggestion Email
+                    </h3>
+                    <p className="text-[11px] text-[#9A8A82] font-body mt-0.5">
+                      Draft connection proposal to {customer?.firstName}\'s parents
+                    </p>
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={() => setIsEmailModalOpen(false)}
+                  className="p-1 rounded-full text-[#9A8A82] hover:bg-[#EDE4DD] hover:text-[#4A3830]"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Modal Content Form */}
+              <div className="p-6 overflow-y-auto flex-1 bg-[#FDFBF9] space-y-4">
+                {/* To Field */}
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[#9A8A82] font-body mb-1.5">
+                    To (Recipient Family)
+                  </label>
+                  <input
+                    type="text"
+                    value={emailTo}
+                    disabled
+                    className="w-full rounded-xl px-4 py-2.5 text-xs font-semibold"
+                    style={{
+                      backgroundColor: '#FAF5F0',
+                      border: '1.5px solid #EDE4DD',
+                      color: '#6B5B54',
+                    }}
+                  />
+                </div>
+
+                {/* Subject Field */}
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[#9A8A82] font-body mb-1.5">
+                    Subject Line
+                  </label>
+                  <input
+                    type="text"
+                    value={emailSubject}
+                    onChange={(e) => setEmailSubject(e.target.value)}
+                    className="w-full rounded-xl px-4 py-2.5 text-xs font-semibold transition-all duration-200"
+                    style={{
+                      backgroundColor: '#FAF5F0',
+                      border: '1.5px solid #EDE4DD',
+                      color: '#2C1810',
+                      outline: 'none',
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#A4243B'}
+                    onBlur={(e) => e.target.style.borderColor = '#EDE4DD'}
+                  />
+                </div>
+
+                {/* Message Body Field */}
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[#9A8A82] font-body mb-1.5">
+                    Email Message Body (Editable)
+                  </label>
+                  
+                  {isGeneratingPitch ? (
+                    <div className="w-full rounded-xl border border-[#EDE4DD] p-16 flex flex-col items-center justify-center bg-white space-y-3">
+                      <div className="animate-spin rounded-full h-7 w-7 border-t-2 border-b-2 border-[#A4243B]" />
+                      <p className="text-xs font-semibold text-[#9A8A82] font-body">
+                        Gemini is compiling biodatas & writing matching pitch introduction...
+                      </p>
+                    </div>
+                  ) : (
+                    <textarea
+                      value={emailBody}
+                      onChange={(e) => setEmailBody(e.target.value)}
+                      rows={12}
+                      className="w-full rounded-xl px-4 py-3 text-xs font-medium leading-relaxed transition-all duration-200"
+                      style={{
+                        backgroundColor: '#FFFFFF',
+                        border: '1.5px solid #EDE4DD',
+                        color: '#4A3830',
+                        outline: 'none',
+                        resize: 'none',
+                        fontFamily: 'monospace'
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = '#A4243B'}
+                      onBlur={(e) => e.target.style.borderColor = '#EDE4DD'}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="px-6 py-3.5 border-t border-[#EDE4DD] flex justify-end gap-3 bg-[#FAF5F0]">
+                <button
+                  onClick={() => setIsEmailModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-150"
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: '#6B5B54',
+                    border: '1px solid #EDE4DD'
+                  }}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={handleSendEmail}
+                  disabled={isGeneratingPitch || isSendingEmail}
+                  className="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-150 flex items-center gap-1.5"
+                  style={{
+                    backgroundColor: isGeneratingPitch || isSendingEmail ? '#D4586A' : '#A4243B',
+                    color: '#FFF8F5',
+                    cursor: isGeneratingPitch || isSendingEmail ? 'not-allowed' : 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isGeneratingPitch && !isSendingEmail) e.target.style.backgroundColor = '#7B1A2E';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isGeneratingPitch && !isSendingEmail) e.target.style.backgroundColor = '#A4243B';
+                  }}
+                >
+                  {isSendingEmail ? (
+                    <>
+                      <div className="animate-spin rounded-full h-3 w-3 border-t border-b border-white" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-3.5 h-3.5 transform rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                      </svg>
+                      Send Suggestion Email
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ===== TOAST SUCCESS NOTIFICATION ===== */}
+        {showToast && (
+          <div 
+            className="fixed bottom-6 right-6 z-50 p-4 rounded-xl shadow-lg border text-xs font-bold flex items-center gap-2.5 animate-slide-up"
+            style={{ 
+              backgroundColor: '#E8F5EE', 
+              color: '#2D7D5F', 
+              borderColor: '#C2E5D3',
+              boxShadow: '0 4px 12px rgba(45, 125, 95, 0.15)'
+            }}
+          >
+            <div className="w-5 h-5 rounded-full bg-[#2D7D5F] flex items-center justify-center text-white text-[10px]">✓</div>
+            <span>{toastMessage}</span>
           </div>
         )}
       </main>

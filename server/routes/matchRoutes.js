@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
-const { Anthropic } = require('@anthropic-ai/sdk');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 // Define path to the customers JSON file in the client source folder
 const CUSTOMERS_FILE_PATH = path.join(__dirname, '../../client/src/data/customers.json');
@@ -141,18 +141,22 @@ router.post('/score-match', async (req, res) => {
     return res.status(400).json({ error: 'Missing customer or candidate profile' });
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  const isApiKeyPlaceholder = !apiKey || apiKey === 'your_anthropic_api_key_here';
+  const apiKey = process.env.GEMINI_API_KEY;
+  const isApiKeyPlaceholder = !apiKey || apiKey === 'your_gemini_api_key_here';
 
   // Fallback to local rule-based pitch if API key is missing or is the default template placeholder
   if (isApiKeyPlaceholder) {
-    console.log('Anthropic API key is placeholder or missing. Generating rule-based pitch locally.');
+    console.log('Gemini API key is placeholder or missing. Generating rule-based pitch locally.');
     const pitch = generateFallbackPitch(customer, candidate, score);
     return res.status(200).json({ pitch, source: 'local_fallback' });
   }
 
   try {
-    const anthropic = new Anthropic({ apiKey });
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-1.5-flash',
+      systemInstruction: 'You are an elite matrimonial matchmaker at TDC. Write a warm, persuasive, and professional pitch that human matchmaker Priya Sharma can use to introduce a match to a client or family. Write in formatted markdown, focusing on details like diet compatibility, educational pedigree, career synergy, and Gotra alignment.'
+    });
 
     const prompt = `
 You are a senior matrimonial matchmaker at TDC (The Divine Connection), a premium Indian matchmaking service.
@@ -195,17 +199,12 @@ Write a comprehensive matchmaking proposal pitch structured into the following s
 Keep the tone polished, warm, respectful, and highly professional. Return only the pitch formatted in Markdown.
 `;
 
-    const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 1200,
-      system: 'You are an elite matrimonial matchmaker at TDC. Write a warm, persuasive, and professional pitch that human matchmaker Priya Sharma can use to introduce a match to a client or family. Write in formatted markdown, focusing on details like diet compatibility, educational pedigree, career synergy, and Gotra alignment.',
-      messages: [{ role: 'user', content: prompt }]
-    });
-
-    const pitch = response.content[0].text;
-    res.status(200).json({ pitch, source: 'claude_api' });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const pitch = response.text();
+    res.status(200).json({ pitch, source: 'gemini_api' });
   } catch (error) {
-    console.error('Anthropic API call failed, reverting to fallback pitch:', error.message);
+    console.error('Gemini API call failed, reverting to fallback pitch:', error.message);
     const pitch = generateFallbackPitch(customer, candidate, score);
     res.status(200).json({ pitch, source: 'local_fallback_on_error', error: error.message });
   }
