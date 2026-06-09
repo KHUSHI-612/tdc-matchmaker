@@ -391,10 +391,10 @@ matchmaker@tdc.com`;
       {/* ===== SIDEBAR ===== */}
       <aside 
         className="w-[240px] fixed left-0 top-0 bottom-0 flex flex-col z-20"
-        style={{ backgroundColor: '#5C2434' }}
+        style={{ backgroundColor: '#4A1525' }}
       >
         {/* Header */}
-        <div className="px-6 py-6 flex items-center gap-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="px-6 h-[81px] flex items-center gap-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
           <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
             <img src={logo} className="w-5 h-5 object-contain" alt="TDC Logo" />
           </div>
@@ -432,7 +432,7 @@ matchmaker@tdc.com`;
         
         {/* Header Bar */}
         <header 
-          className="sticky top-0 z-10 px-8 py-5 flex items-center justify-between"
+          className="sticky top-0 z-10 px-8 h-[81px] flex items-center justify-between"
           style={{ 
             backgroundColor: 'rgba(253, 251, 249, 0.85)',
             backdropFilter: 'blur(12px)',
@@ -483,11 +483,10 @@ matchmaker@tdc.com`;
                 <div 
                   className="w-16 h-16 rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0"
                   style={{
-                    background: isMale 
-                      ? 'linear-gradient(135deg, #3B6FB5 0%, #5B8FD5 100%)'
-                      : 'linear-gradient(135deg, #A4243B 0%, #D4586A 100%)',
-                    color: '#FFFFFF',
-                    boxShadow: isMale ? '0 4px 12px rgba(59, 111, 181, 0.2)' : '0 4px 12px rgba(164, 36, 59, 0.2)'
+                    background: 'linear-gradient(135deg, #FAF5F0 0%, #EDE4DD 100%)',
+                    color: '#A4243B',
+                    border: '1.5px solid #EDE4DD',
+                    boxShadow: '0 2px 8px rgba(164, 36, 59, 0.05)'
                   }}
                 >
                   {customer.firstName[0]}{customer.lastName[0]}
@@ -795,11 +794,11 @@ matchmaker@tdc.com`;
                           <div className="flex items-center gap-3">
                             {/* Avatar */}
                             <div 
-                              className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs text-white"
+                              className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs"
                               style={{
-                                background: isMale 
-                                  ? 'linear-gradient(135deg, #A4243B 0%, #D4586A 100%)' // Females seeking are red
-                                  : 'linear-gradient(135deg, #3B6FB5 0%, #5B8FD5 100%)', // Males seeking are blue
+                                background: 'linear-gradient(135deg, #FAF5F0 0%, #EDE4DD 100%)',
+                                color: '#A4243B',
+                                border: '1.5px solid #EDE4DD',
                               }}
                             >
                               {cand.firstName[0]}{cand.lastName[0]}

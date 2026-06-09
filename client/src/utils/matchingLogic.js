@@ -123,12 +123,12 @@ const calculateMaleCustomerMatching = (customer, candidate) => {
   // PART II: MATRIMONIAL & ASTRO CRITERIA (40 PTS)
   // ==========================================
 
-  // E. Religion Compatibility (15 Points)
+  // E. Religion Compatibility (10 Points)
   const religionMatch = customer.religion === candidate.religion;
-  const religionScore = religionMatch ? 15 : 0;
+  const religionScore = religionMatch ? 10 : 0;
   breakdown.religion = {
     score: religionScore,
-    max: 15,
+    max: 10,
     label: "Religion Match",
     desc: religionMatch
       ? `Same religion (${customer.religion})`
@@ -192,8 +192,36 @@ const calculateMaleCustomerMatching = (customer, candidate) => {
     desc: gotraDesc
   };
 
+  // I. Language Compatibility (5 Points)
+  let languageScore = 0;
+  let languageDesc = "";
+  const hasSameMotherTongue = customer.motherTongue && candidate.motherTongue && 
+    customer.motherTongue.toLowerCase() === candidate.motherTongue.toLowerCase();
+
+  const mutualLanguages = (customer.languagesKnown || []).filter(lang => 
+    (candidate.languagesKnown || []).some(cl => cl.toLowerCase() === lang.toLowerCase())
+  );
+
+  if (hasSameMotherTongue) {
+    languageScore = 5;
+    languageDesc = `Same mother tongue (${customer.motherTongue})`;
+  } else if (mutualLanguages.length > 0) {
+    languageScore = 3;
+    languageDesc = `Shared languages: ${mutualLanguages.join(', ')}`;
+  } else {
+    languageScore = 0;
+    languageDesc = "No shared languages known";
+  }
+
+  breakdown.language = {
+    score: languageScore,
+    max: 5,
+    label: "Language Match",
+    desc: languageDesc
+  };
+
   // Sum raw values
-  let totalScore = ageScore + incomeScore + heightScore + kidsScore + religionScore + casteScore + manglikScore + gotraScore;
+  let totalScore = ageScore + incomeScore + heightScore + kidsScore + religionScore + casteScore + manglikScore + gotraScore + languageScore;
   
   // Apply Gotra avoidance penalty if exists
   totalScore = Math.max(0, totalScore - gotraPenalty);
@@ -254,33 +282,34 @@ const calculateFemaleCustomerMatching = (customer, candidate) => {
   };
 
   // B. Lifestyle & Values Compatibility (25 Points)
-  // Combines Diet, Habits, Religion, and Caste matches
+  // Combines Diet, Habits, Religion, Caste, and Language matches
   let valuesScore = 0;
   const valuesDescArr = [];
 
-  // 1. Diet (10 pts)
+  // 1. Diet (8 pts)
   if (customer.diet === candidate.diet) {
-    valuesScore += 10;
+    valuesScore += 8;
     valuesDescArr.push(`Diet Match (${customer.diet})`);
   } else if (customer.diet === 'Vegetarian' && candidate.diet === 'Jain') {
-    valuesScore += 8;
+    valuesScore += 6;
     valuesDescArr.push("Veg/Jain Compatible");
   } else if (customer.diet === 'Non-Vegetarian' && candidate.diet === 'Vegetarian') {
-    valuesScore += 6;
+    valuesScore += 4;
     valuesDescArr.push("Veg Candidate fits");
   } else {
     valuesDescArr.push("Mismatched Diet");
   }
 
-  // 2. Habits (5 pts)
+  // 2. Habits (4 pts)
   if (customer.smoking === candidate.smoking && customer.drinking === candidate.drinking) {
-    valuesScore += 5;
+    valuesScore += 4;
     valuesDescArr.push("Habits Aligned");
   } else if (candidate.smoking === 'Never' && candidate.drinking === 'Never') {
-    valuesScore += 4;
+    valuesScore += 3;
     valuesDescArr.push("Candidate habits fit");
   } else {
     valuesScore += 1;
+    valuesDescArr.push("Mismatched Habits");
   }
 
   // 3. Religion (5 pts)
@@ -298,6 +327,26 @@ const calculateFemaleCustomerMatching = (customer, candidate) => {
   } else {
     valuesDescArr.push("Different Caste");
   }
+
+  // 5. Language (3 pts)
+  let languageValScore = 0;
+  const hasSameMotherTongueFem = customer.motherTongue && candidate.motherTongue && 
+    customer.motherTongue.toLowerCase() === candidate.motherTongue.toLowerCase();
+
+  const mutualLanguagesFem = (customer.languagesKnown || []).filter(lang => 
+    (candidate.languagesKnown || []).some(cl => cl.toLowerCase() === lang.toLowerCase())
+  );
+
+  if (hasSameMotherTongueFem) {
+    languageValScore = 3;
+    valuesDescArr.push(`Same mother tongue (${customer.motherTongue})`);
+  } else if (mutualLanguagesFem.length > 0) {
+    languageValScore = 2;
+    valuesDescArr.push(`Shares ${mutualLanguagesFem.join(', ')}`);
+  } else {
+    valuesDescArr.push("No common languages");
+  }
+  valuesScore += languageValScore;
 
   breakdown.values = {
     score: valuesScore,

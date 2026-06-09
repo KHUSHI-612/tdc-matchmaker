@@ -56,7 +56,7 @@ const Login = () => {
       {/* LEFT PANEL — Brand & Trust */}
       <div 
         className="hidden lg:flex lg:w-[45%] relative flex-col justify-between p-12 overflow-hidden"
-        style={{ backgroundColor: '#2C1810' }}
+        style={{ backgroundColor: '#4A1525' }}
       >
         {/* Subtle decorative pattern overlay */}
         <div 

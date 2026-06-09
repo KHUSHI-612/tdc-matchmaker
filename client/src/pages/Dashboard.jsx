@@ -9,6 +9,7 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [clients, setClients] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Authentication Guard
   useEffect(() => {
@@ -33,15 +34,20 @@ const Dashboard = () => {
   // Load clients data from backend dynamically to ensure session notes and stage updates sync, with a static fallback
   useEffect(() => {
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+    setIsLoading(true);
     fetch(`${API_URL}/customers`)
       .then(res => {
         if (!res.ok) throw new Error('API request failed');
         return res.json();
       })
-      .then(data => setClients(data))
+      .then(data => {
+        setClients(data);
+        setIsLoading(false);
+      })
       .catch(err => {
         console.warn('API unavailable, falling back to offline static data:', err.message);
         setClients(customersData);
+        setIsLoading(false);
       });
   }, []);
 
@@ -132,12 +138,12 @@ const Dashboard = () => {
       <aside 
         className="w-[240px] fixed left-0 top-0 bottom-0 flex flex-col z-20"
         style={{ 
-          backgroundColor: '#5C2434',
+          backgroundColor: '#4A1525',
         }}
       >
         {/* Brand Header */}
         <div 
-          className="px-6 py-6 flex items-center gap-3"
+          className="px-6 h-[81px] flex items-center gap-3"
           style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
         >
           <div 
@@ -159,45 +165,35 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* User Profile Card */}
-        <div className="px-4 py-5">
+        {/* User Profile (Clean & Borderless) */}
+        <div className="px-6 py-4 flex items-center gap-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <div 
-            className="p-4 rounded-xl flex items-center gap-3"
-            style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}
+            className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0"
+            style={{ 
+              background: 'linear-gradient(135deg, #FAF5F0 0%, #EDE4DD 100%)',
+              color: '#A4243B',
+              border: '1.5px solid #EDE4DD',
+            }}
           >
-            <div 
-              className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
-              style={{ 
-                background: 'linear-gradient(135deg, #D4586A 0%, #E8A0B0 100%)',
-                color: '#FFFFFF',
-              }}
-            >
-              {getInitials(matchmaker.name)}
-            </div>
-            <div className="min-w-0">
-              <p 
-                className="text-sm font-semibold truncate"
-                style={{ color: '#FFFFFF' }}
-              >
-                {matchmaker.name}
-              </p>
-              <p className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.45)' }}>
-                Senior Matchmaker
-              </p>
-            </div>
+            {getInitials(matchmaker.name)}
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold truncate text-white">
+              {matchmaker.name}
+            </p>
+            <p className="text-[10px] font-medium text-white/50">
+              Senior Matchmaker
+            </p>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="px-3 mb-6">
-          <div className="text-[10px] font-bold tracking-widest uppercase px-3 mb-2" style={{ color: 'rgba(255,255,255,0.3)' }}>
-            Menu
-          </div>
+        <nav className="px-3 py-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <button
             onClick={() => navigate('/dashboard')}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-150"
             style={{ 
-              backgroundColor: 'rgba(255,255,255,0.1)',
+              backgroundColor: 'transparent',
               color: '#FFFFFF',
             }}
           >
@@ -209,8 +205,8 @@ const Dashboard = () => {
         </nav>
 
         {/* Status Filters */}
-        <div className="px-3 flex-1">
-          <div className="text-[10px] font-bold tracking-widest uppercase px-3 mb-2" style={{ color: 'rgba(255,255,255,0.3)' }}>
+        <div className="px-3 py-5 flex-1">
+          <div className="text-[10px] font-bold tracking-widest uppercase px-3 mb-3" style={{ color: 'rgba(255,255,255,0.35)' }}>
             Filter by Status
           </div>
           <div className="space-y-1">
@@ -220,25 +216,25 @@ const Dashboard = () => {
                 <button
                   key={tab.key}
                   onClick={() => setStatusFilter(tab.key)}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150"
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-150"
                   style={{
-                    backgroundColor: isActive ? 'rgba(255,255,255,0.12)' : 'transparent',
-                    color: isActive ? '#FFFFFF' : 'rgba(255,255,255,0.65)',
+                    backgroundColor: isActive ? 'rgba(255,255,255,0.06)' : 'transparent',
+                    color: isActive ? '#FFFFFF' : 'rgba(255,255,255,0.55)',
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive) {
                       e.currentTarget.style.color = '#FFFFFF';
-                      e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)';
+                      e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)';
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isActive) {
-                      e.currentTarget.style.color = 'rgba(255,255,255,0.65)';
+                      e.currentTarget.style.color = 'rgba(255,255,255,0.55)';
                       e.currentTarget.style.backgroundColor = 'transparent';
                     }
                   }}
                 >
-                  <div className="flex items-center gap-2.5">
+                  <div className="flex items-center gap-2">
                     {tab.key !== 'All' ? (
                       <span 
                         className="w-1.5 h-1.5 rounded-full"
@@ -248,7 +244,7 @@ const Dashboard = () => {
                       />
                     ) : (
                       <span 
-                        className="w-1.5 h-1.5 rounded-full bg-white opacity-40"
+                        className="w-1.5 h-1.5 rounded-full bg-white opacity-30"
                       />
                     )}
                     <span>{tab.label}</span>
@@ -256,8 +252,8 @@ const Dashboard = () => {
                   <span 
                     className="text-[10px] px-1.5 py-0.5 rounded font-bold"
                     style={{
-                      backgroundColor: isActive ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)',
-                      color: isActive ? '#FFFFFF' : 'rgba(255,255,255,0.45)',
+                      backgroundColor: isActive ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.04)',
+                      color: isActive ? '#FFFFFF' : 'rgba(255,255,255,0.4)',
                     }}
                   >
                     {tab.count}
@@ -299,7 +295,7 @@ const Dashboard = () => {
         
         {/* Top Header Bar */}
         <header 
-          className="sticky top-0 z-10 px-8 py-5 flex items-center justify-between"
+          className="sticky top-0 z-10 px-8 h-[81px] flex items-center justify-between"
           style={{ 
             backgroundColor: 'rgba(253, 251, 249, 0.85)',
             backdropFilter: 'blur(12px)',
@@ -366,10 +362,16 @@ const Dashboard = () => {
 
           {/* Client Cards List */}
           <div className="space-y-4 stagger-children">
-            {filteredClients.length > 0 ? (
+            {isLoading ? (
+              /* Loading Spinner centered */
+              <div className="py-24 text-center space-y-4 flex flex-col items-center justify-center">
+                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#A4243B]" />
+                <p className="text-xs font-semibold text-[#9A8A82] font-body">
+                  Retrieving your assigned clients...
+                </p>
+              </div>
+            ) : filteredClients.length > 0 ? (
               filteredClients.map((client) => {
-                const isMale = client.gender === 'Male';
-                
                 return (
                   <div
                     key={client.id}
@@ -399,13 +401,10 @@ const Dashboard = () => {
                         <div 
                           className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
                           style={{
-                            background: isMale 
-                              ? 'linear-gradient(135deg, #3B6FB5 0%, #5B8FD5 100%)'
-                              : 'linear-gradient(135deg, #A4243B 0%, #D4586A 100%)',
-                            color: '#FFFFFF',
-                            boxShadow: isMale 
-                              ? '0 2px 8px rgba(59, 111, 181, 0.25)'
-                              : '0 2px 8px rgba(164, 36, 59, 0.25)',
+                            background: 'linear-gradient(135deg, #FAF5F0 0%, #EDE4DD 100%)',
+                            color: '#A4243B',
+                            border: '1.5px solid #EDE4DD',
+                            boxShadow: '0 1px 3px rgba(164, 36, 59, 0.05)',
                           }}
                         >
                           {client.firstName[0]}{client.lastName[0]}
@@ -488,41 +487,43 @@ const Dashboard = () => {
                 );
               })
             ) : (
-              /* Empty State */
-              <div 
-                className="rounded-2xl p-16 text-center"
-                style={{
-                  backgroundColor: '#FFFFFF',
-                  border: '1px solid #EDE4DD',
-                  boxShadow: '0 1px 2px rgba(44, 24, 16, 0.03)',
-                }}
-              >
+              /* Centered Empty State */
+              <div className="flex justify-center py-6">
                 <div 
-                  className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center mb-4"
-                  style={{ backgroundColor: '#FAF5F0' }}
+                  className="rounded-2xl p-16 text-center max-w-md w-full"
+                  style={{
+                    backgroundColor: '#FFFFFF',
+                    border: '1px solid #EDE4DD',
+                    boxShadow: '0 1px 2px rgba(44, 24, 16, 0.03)',
+                  }}
                 >
-                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="#9A8A82" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                  </svg>
+                  <div 
+                    className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center mb-4"
+                    style={{ backgroundColor: '#FAF5F0' }}
+                  >
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="#9A8A82" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                  </div>
+                  <h3 
+                    className="text-xl font-semibold mb-1.5"
+                    style={{ color: '#2C1810' }}
+                  >
+                    No matching clients
+                  </h3>
+                  <p className="text-sm mb-5" style={{ color: '#9A8A82' }}>
+                    Try broadening your search or selecting a different filter.
+                  </p>
+                  <button
+                    onClick={() => { setSearchQuery(''); setStatusFilter('All'); }}
+                    className="text-sm font-semibold transition-colors duration-150"
+                    style={{ color: '#A4243B' }}
+                    onMouseEnter={(e) => e.target.style.color = '#7B1A2E'}
+                    onMouseLeave={(e) => e.target.style.color = '#A4243B'}
+                  >
+                    Reset all filters ↩
+                  </button>
                 </div>
-                <h3 
-                  className="text-xl font-semibold mb-1.5"
-                  style={{ color: '#2C1810' }}
-                >
-                  No matching clients
-                </h3>
-                <p className="text-sm mb-5" style={{ color: '#9A8A82' }}>
-                  Try broadening your search or selecting a different filter.
-                </p>
-                <button
-                  onClick={() => { setSearchQuery(''); setStatusFilter('All'); }}
-                  className="text-sm font-semibold transition-colors duration-150"
-                  style={{ color: '#A4243B' }}
-                  onMouseEnter={(e) => e.target.style.color = '#7B1A2E'}
-                  onMouseLeave={(e) => e.target.style.color = '#A4243B'}
-                >
-                  Reset all filters ↩
-                </button>
               </div>
             )}
           </div>

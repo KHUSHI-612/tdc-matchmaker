@@ -11,6 +11,11 @@ app.use(cors());
 // Parse incoming JSON requests
 app.use(express.json());
 
+// Root route greeting
+app.get('/', (req, res) => {
+  res.status(200).send('Welcome to the TDC Matchmaker API server! The service is healthy and running.');
+});
+
 // Basic health check route
 app.get('/api/health', (req, res) => {
   res.status(200).json({
