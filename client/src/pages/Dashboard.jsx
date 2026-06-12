@@ -149,17 +149,18 @@ const Dashboard = () => {
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         style={{ 
-          backgroundColor: '#4A1525',
+          background: 'linear-gradient(180deg, #3D101E 0%, #4A1525 50%, #1A040B 100%)',
+          borderRight: '1px solid rgba(255, 255, 255, 0.04)',
         }}
       >
         {/* Brand Header */}
         <div 
-          className="px-6 h-[81px] flex items-center gap-3"
-          style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
+          className="px-6 h-[81px] flex items-center gap-3 relative z-10"
+          style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
         >
           <div 
             className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+            style={{ backgroundColor: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255, 255, 255, 0.08)' }}
           >
             <img src={logo} className="w-5 h-5 object-contain" alt="TDC Logo" />
           </div>
@@ -176,39 +177,48 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* User Profile (Clean & Borderless) */}
-        <div className="px-6 py-4 flex items-center gap-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        {/* User Profile (Elevated Glass Card) */}
+        <div className="px-4 py-3.5 mx-4 my-4 rounded-xl flex items-center gap-3 relative z-10" 
+          style={{ 
+            backgroundColor: 'rgba(0, 0, 0, 0.15)',
+            border: '1px solid rgba(255, 255, 255, 0.05)',
+          }}
+        >
           <div 
-            className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0"
+            className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0"
             style={{ 
               background: 'linear-gradient(135deg, #FAF5F0 0%, #EDE4DD 100%)',
               color: '#A4243B',
-              border: '1.5px solid #EDE4DD',
+              border: '1.5px solid #E6C594',
+              boxShadow: '0 0 10px rgba(230, 197, 148, 0.2)',
             }}
           >
             {getInitials(matchmaker.name)}
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-semibold truncate text-white">
+            <p className="text-xs font-bold truncate text-white">
               {matchmaker.name}
             </p>
-            <p className="text-[10px] font-medium text-white/50">
+            <p className="text-[10px] font-semibold text-white/40">
               Senior Matchmaker
             </p>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="px-3 py-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <nav className="px-3 py-1 relative z-10" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <button
             onClick={() => {
               navigate('/dashboard');
               setSidebarOpen(false);
             }}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-150"
+            className="w-full flex items-center gap-3 px-3 py-2 text-sm font-semibold transition-all duration-150"
             style={{ 
-              backgroundColor: 'transparent',
-              color: '#FFFFFF',
+              backgroundColor: 'rgba(255, 255, 255, 0.04)',
+              color: '#E6C594',
+              borderLeft: '3px solid #E6C594',
+              borderRadius: '0 8px 8px 0',
+              paddingLeft: '9px',
             }}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -219,7 +229,7 @@ const Dashboard = () => {
         </nav>
 
         {/* Status Filters */}
-        <div className="px-3 py-5 flex-1">
+        <div className="px-3 py-5 flex-1 relative z-10">
           <div className="text-[10px] font-bold tracking-widest uppercase px-3 mb-3" style={{ color: 'rgba(255,255,255,0.35)' }}>
             Filter by Status
           </div>
@@ -233,10 +243,13 @@ const Dashboard = () => {
                     setStatusFilter(tab.key);
                     setSidebarOpen(false);
                   }}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-150"
+                  className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold transition-all duration-150"
                   style={{
-                    backgroundColor: isActive ? 'rgba(255,255,255,0.06)' : 'transparent',
-                    color: isActive ? '#FFFFFF' : 'rgba(255,255,255,0.55)',
+                    backgroundColor: isActive ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+                    color: isActive ? '#FFFFFF' : 'rgba(255, 255, 255, 0.55)',
+                    borderLeft: isActive ? '3px solid #E6C594' : '3px solid transparent',
+                    borderRadius: '0 8px 8px 0',
+                    paddingLeft: isActive ? '9px' : '12px',
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive) {
@@ -267,10 +280,9 @@ const Dashboard = () => {
                     <span>{tab.label}</span>
                   </div>
                   <span 
-                    className="text-[10px] px-1.5 py-0.5 rounded font-bold"
+                    className="text-[11px] font-semibold"
                     style={{
-                      backgroundColor: isActive ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.04)',
-                      color: isActive ? '#FFFFFF' : 'rgba(255,255,255,0.4)',
+                      color: isActive ? '#E6C594' : 'rgba(255, 255, 255, 0.45)',
                     }}
                   >
                     {tab.count}
@@ -281,9 +293,17 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Decorative overlapping rings watermark inside sidebar */}
+        <div className="absolute bottom-16 right-[-20px] pointer-events-none z-0 opacity-[0.05] transform rotate-45">
+          <svg width="180" height="180" viewBox="0 0 240 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="90" cy="90" r="65" stroke="#E6C594" strokeWidth="2.5" />
+            <circle cx="150" cy="90" r="65" stroke="#FFFFFF" strokeWidth="2.5" />
+          </svg>
+        </div>
+
         {/* Logout */}
         <div 
-          className="px-3 py-4"
+          className="px-3 py-4 relative z-10"
           style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
         >
           <button
@@ -385,6 +405,47 @@ const Dashboard = () => {
             <p className="text-sm mt-1" style={{ color: '#9A8A82' }}>
               {filteredClients.length} {filteredClients.length === 1 ? 'client' : 'clients'} assigned to you
             </p>
+          </div>
+
+          {/* Hero Banner Card */}
+          <div 
+            className="mb-8 rounded-3xl relative overflow-hidden flex flex-col justify-end p-6 sm:p-8 min-h-[180px] sm:min-h-[220px]"
+            style={{
+              boxShadow: '0 4px 20px rgba(74, 21, 37, 0.05)',
+            }}
+          >
+            {/* Background image */}
+            <img 
+              src="/dashboard-banner.png" 
+              alt="Couples hand holding" 
+              className="absolute inset-0 w-full h-full object-cover z-0"
+            />
+            {/* Gradient overlay */}
+            <div 
+              className="absolute inset-0 z-0"
+              style={{
+                background: 'linear-gradient(90deg, rgba(74, 21, 37, 0.9) 0%, rgba(74, 21, 37, 0.6) 60%, rgba(44, 24, 16, 0.3) 100%)',
+              }}
+            />
+            {/* Content overlay */}
+            <div className="relative z-10 max-w-lg">
+              <span 
+                className="text-[10px] font-bold tracking-[0.2em] uppercase"
+                style={{ color: '#F0B4C0' }}
+              >
+                Matchmaker Workspace
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-light text-white mt-3 leading-tight">
+                Crafting connections that
+                <br />
+                <span className="font-semibold italic" style={{ color: '#F0B4C0' }}>
+                  last a lifetime.
+                </span>
+              </h2>
+              <p className="text-xs sm:text-sm mt-2 max-w-sm text-white/75">
+                Manage client journeys, review preferences, and coordinate meaningful matching milestones.
+              </p>
+            </div>
           </div>
 
 

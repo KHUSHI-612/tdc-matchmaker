@@ -53,18 +53,23 @@ const Login = () => {
   return (
     <div className="min-h-screen flex" style={{ backgroundColor: '#FDFBF9' }}>
       
-      {/* LEFT PANEL — Brand & Trust */}
+      {/* LEFT PANEL — Brand & Trust with Hero Image */}
       <div 
-        className="hidden lg:flex lg:w-[45%] relative flex-col justify-between p-12 overflow-hidden"
-        style={{ backgroundColor: '#4A1525' }}
+        className="hidden lg:flex lg:w-[60%] relative flex-col justify-between p-12 overflow-hidden"
       >
-        {/* Subtle decorative pattern overlay */}
+        {/* Full-bleed hero image */}
+        <img 
+          src="/login-hero.png" 
+          alt="" 
+          className="absolute inset-0 w-full h-full object-cover"
+          aria-hidden="true"
+        />
+        
+        {/* Dark gradient overlay for text readability */}
         <div 
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0"
           style={{
-            backgroundImage: `radial-gradient(circle at 25% 25%, #A4243B 1px, transparent 1px),
-                             radial-gradient(circle at 75% 75%, #A4243B 1px, transparent 1px)`,
-            backgroundSize: '40px 40px',
+            background: 'linear-gradient(180deg, rgba(74, 21, 37, 0.75) 0%, rgba(74, 21, 37, 0.45) 50%, rgba(74, 21, 37, 0.75) 100%)',
           }}
         />
         
@@ -73,7 +78,7 @@ const Login = () => {
           <div className="flex items-center gap-3 mb-2">
             <div 
               className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ backgroundColor: 'rgba(164, 36, 59, 0.15)' }}
+              style={{ backgroundColor: 'rgba(255, 255, 255, 0.12)', backdropFilter: 'blur(8px)' }}
             >
               <img src={logo} className="w-5 h-5 object-contain" alt="TDC Logo" />
             </div>
@@ -94,13 +99,13 @@ const Login = () => {
           >
             Where trusted hands
             <br />
-            <span className="font-semibold italic" style={{ color: '#D4586A' }}>
+            <span className="font-semibold italic" style={{ color: '#F0B4C0' }}>
               guide hearts home.
             </span>
           </h1>
           <p 
             className="text-base leading-relaxed max-w-sm"
-            style={{ color: 'rgba(250, 245, 240, 0.5)' }}
+            style={{ color: 'rgba(250, 245, 240, 0.6)' }}
           >
             A dedicated portal for our matchmakers to manage client journeys, 
             suggest compatible matches, and nurture meaningful connections.
@@ -108,53 +113,53 @@ const Login = () => {
         </div>
         
         {/* Bottom: Trust indicators */}
-        <div className="relative z-10 flex items-center gap-8">
+        <div className="relative z-10 flex items-center justify-between w-full max-w-md">
           <div>
             <div 
               className="text-2xl font-bold"
-              style={{ color: '#D4586A' }}
+              style={{ color: '#F0B4C0' }}
             >
               500+
             </div>
             <div 
               className="text-xs font-medium mt-0.5"
-              style={{ color: 'rgba(250, 245, 240, 0.4)' }}
+              style={{ color: 'rgba(250, 245, 240, 0.5)' }}
             >
               Successful matches
             </div>
           </div>
           <div 
-            className="w-px h-10"
-            style={{ backgroundColor: 'rgba(250, 245, 240, 0.1)' }}
+            className="w-px h-8"
+            style={{ backgroundColor: 'rgba(250, 245, 240, 0.15)' }}
           />
           <div>
             <div 
               className="text-2xl font-bold"
-              style={{ color: '#D4586A' }}
+              style={{ color: '#F0B4C0' }}
             >
               12+
             </div>
             <div 
               className="text-xs font-medium mt-0.5"
-              style={{ color: 'rgba(250, 245, 240, 0.4)' }}
+              style={{ color: 'rgba(250, 245, 240, 0.5)' }}
             >
               Years of trust
             </div>
           </div>
           <div 
-            className="w-px h-10"
-            style={{ backgroundColor: 'rgba(250, 245, 240, 0.1)' }}
+            className="w-px h-8"
+            style={{ backgroundColor: 'rgba(250, 245, 240, 0.15)' }}
           />
           <div>
             <div 
               className="text-2xl font-bold"
-              style={{ color: '#D4586A' }}
+              style={{ color: '#F0B4C0' }}
             >
               98%
             </div>
             <div 
               className="text-xs font-medium mt-0.5"
-              style={{ color: 'rgba(250, 245, 240, 0.4)' }}
+              style={{ color: 'rgba(250, 245, 240, 0.5)' }}
             >
               Client satisfaction
             </div>
@@ -163,11 +168,59 @@ const Login = () => {
       </div>
 
       {/* RIGHT PANEL — Login Form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 lg:px-16">
-        <div className="w-full max-w-[400px] animate-fade-in">
+      <div className="flex-1 flex items-center justify-center px-6 py-12 lg:px-16 relative overflow-hidden">
+        
+        {/* Subtle romantic/warm radial glow */}
+        <div 
+          className="absolute pointer-events-none z-0 w-[500px] h-[500px] rounded-full blur-[120px]"
+          style={{
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: 'radial-gradient(circle, rgba(164, 36, 59, 0.05) 0%, rgba(253, 251, 249, 0) 70%)',
+          }}
+        />
+
+        {/* Decorative overlapping rings background illustration - Top Right (Lil Darker) */}
+        <div className="absolute top-[-50px] right-[-50px] pointer-events-none z-0 opacity-[0.14] transform rotate-12">
+          <svg width="320" height="240" viewBox="0 0 240 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="90" cy="90" r="65" stroke="url(#ringGold)" strokeWidth="3" />
+            <circle cx="150" cy="90" r="65" stroke="url(#ringBurgundy)" strokeWidth="3" />
+            <defs>
+              <linearGradient id="ringGold" x1="25" y1="25" x2="155" y2="155" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="#C9A063" />
+                <stop offset="100%" stopColor="#E6C594" />
+              </linearGradient>
+              <linearGradient id="ringBurgundy" x1="85" y1="25" x2="215" y2="155" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="#A4243B" />
+                <stop offset="100%" stopColor="#4A1525" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        {/* Decorative overlapping rings background illustration - Bottom Left (Lil Darker) */}
+        <div className="absolute bottom-[-80px] left-[-80px] pointer-events-none z-0 opacity-[0.10] transform -rotate-45">
+          <svg width="400" height="300" viewBox="0 0 240 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="90" cy="90" r="75" stroke="url(#ringBurgundy2)" strokeWidth="2" />
+            <circle cx="155" cy="90" r="75" stroke="url(#ringGold2)" strokeWidth="2" />
+            <defs>
+              <linearGradient id="ringGold2" x1="25" y1="25" x2="155" y2="155" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="#E6C594" />
+                <stop offset="100%" stopColor="#C9A063" />
+              </linearGradient>
+              <linearGradient id="ringBurgundy2" x1="85" y1="25" x2="215" y2="155" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="#4A1525" />
+                <stop offset="100%" stopColor="#A4243B" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        <div className="w-full max-w-[400px] animate-fade-in relative z-10">
           
           {/* Mobile-only brand header */}
-          <div className="lg:hidden text-center mb-10">
+          <div className="lg:hidden text-center mb-8">
             <div 
               className="w-12 h-12 rounded-xl mx-auto flex items-center justify-center mb-4"
               style={{ backgroundColor: '#F2E0E3' }}
@@ -177,6 +230,17 @@ const Login = () => {
             <h1 className="text-2xl font-semibold" style={{ color: '#2C1810' }}>
               TDC Matchmaker
             </h1>
+          </div>
+
+          {/* Desktop elegant brand tag */}
+          <div className="hidden lg:flex items-center gap-2 mb-6">
+            <svg width="28" height="20" viewBox="0 0 28 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-80">
+              <circle cx="10" cy="10" r="7.5" stroke="#A4243B" strokeWidth="1.5" />
+              <circle cx="18" cy="10" r="7.5" stroke="#C9A063" strokeWidth="1.5" />
+            </svg>
+            <span className="text-xs font-semibold tracking-[0.2em] uppercase" style={{ color: '#A4243B' }}>
+              THE DECENT CONNECTIONS
+            </span>
           </div>
 
           {/* Welcome text */}
