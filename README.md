@@ -19,7 +19,7 @@ The application is structured as a decoupled full stack application:
 
 ## Key Features
 
-1. **Secure Login**: Session guard with credentials validation (matchmaker@tdc.com / tdc2024), toggle password visibility, and automatic route redirection.
+1. **Secure Login**: Session guard with credentials validation (matchmaker@tdc.com / tdc2026), toggle password visibility, and automatic route redirection.
 2. **Interactive Dashboard**:
    * Multi-column client grid listing name, age, city, marital status, and active stage.
    * Instant search bar filtering by name, city, or religion.

@@ -32,8 +32,8 @@ const Login = () => {
 
     // Simulate network delay for premium feel & to prevent spam
     setTimeout(() => {
-      // Hardcoded credentials matchmaker@tdc.com / tdc2024
-      if (email.toLowerCase() === 'matchmaker@tdc.com' && password === 'tdc2024') {
+      // Hardcoded credentials matchmaker@tdc.com / tdc2026
+      if (email.toLowerCase() === 'matchmaker@tdc.com' && password === 'tdc2026') {
         const sessionData = {
           loggedIn: true,
           name: 'Priya Sharma',
@@ -459,7 +459,7 @@ const Login = () => {
               }}
               onClick={() => {
                 setEmail('matchmaker@tdc.com');
-                setPassword('tdc2024');
+                setPassword('tdc2026');
                 setError('');
               }}
               onMouseEnter={(e) => {
@@ -485,7 +485,7 @@ const Login = () => {
                   Email: <span className="font-semibold" style={{ color: '#4A3830' }}>matchmaker@tdc.com</span>
                 </span>
                 <span>
-                  Pass: <span className="font-semibold" style={{ color: '#4A3830' }}>tdc2024</span>
+                  Pass: <span className="font-semibold" style={{ color: '#4A3830' }}>tdc2026</span>
                 </span>
               </div>
             </div>
